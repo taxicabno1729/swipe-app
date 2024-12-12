@@ -23,6 +23,7 @@ class SwipeCard(BoxLayout):
         if self.start_x:
             delta_x = touch.x - self.start_x
             self.x = self.parent.x + delta_x
+            self.update_card_opacity(delta_x)
             return True
         return super().on_touch_move(touch)
     
@@ -30,15 +31,17 @@ class SwipeCard(BoxLayout):
         if self.start_x:
             delta_x = touch.x - self.start_x
             if abs(delta_x) > self.swipe_threshold:
-                # Swipe completed
                 direction = 'right' if delta_x > 0 else 'left'
                 self.complete_swipe(direction)
             else:
-                # Return to center
                 self.return_to_center()
             self.start_x = 0
             return True
         return super().on_touch_up(touch)
+    
+    def update_card_opacity(self, delta_x):
+        # Change opacity based on swipe distance
+        self.opacity = max(0.5, 1 - abs(delta_x) / (2 * self.swipe_threshold))
     
     def complete_swipe(self, direction):
         target_x = self.parent.width if direction == 'right' else -self.width
@@ -48,4 +51,4 @@ class SwipeCard(BoxLayout):
     
     def return_to_center(self):
         anim = Animation(x=self.parent.x, duration=0.2)
-        anim.start(self) 
+        anim.start(self)
